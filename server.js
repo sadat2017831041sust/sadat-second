@@ -1,32 +1,3 @@
-Skip to content
-Search or jump to…
-Pull requests
-Issues
-Marketplace
-Explore
- 
-@sadat2017831041sust 
-rifatsust51
-/
-course-projectTwo
-Public
-Code
-Issues
-Pull requests
-Actions
-Projects
-Wiki
-Security
-Insights
-course-projectTwo/index.js /
-@rifatsust51
-rifatsust51 Create index.js
-Latest commit 970694d 42 minutes ago
- History
- 1 contributor
-200 lines (190 sloc)  5.31 KB
-
-
 // collecting all requirements
 const mysql = require('mysql');
 const express = require('express');
@@ -85,14 +56,14 @@ mysqlConnection.connect((err) => {
     if (!err) {
         console.log('connection established successfully');
     } else {
-        console.log(`Connection Failed!${JSON.stringify(err, undefined, 2)}`);
+        console.log(Connection Failed!${JSON.stringify(err, undefined, 2)});
     }
 });
 
 // establish the server connection
 const port = process.env.PORT || 8080;
 app.listen(port, () => {
-    console.log(`the app is running at port ${port}...`);
+    console.log(the app is running at port ${port}...);
 });
 // now create get request to fetch all data
 app.get('/students', checkLogin, (req, res) => {
@@ -104,10 +75,34 @@ app.get('/students', checkLogin, (req, res) => {
         }
     });
 });
+// create get request to fetch all data
+app.get('/api', checkLogin, (req, res) => {
+    mysqlConnection.query('SELECT * FROM blogs', (err, rows, fields) => {
+        if (!err) {
+            res.send(rows);
+        } else {
+            console.log(err);
+        }
+    });
+});
 // Router to GET specific students detail from the MySQL database
 app.get('/students/:id', checkLogin, (req, res) => {
     mysqlConnection.query(
         'SELECT * FROM studentdetails WHERE student_id = ?',
+        [req.params.id],
+        (err, rows, fields) => {
+            if (!err) {
+                res.send(rows);
+            } else {
+                console.log(err);
+            }
+        }
+    );
+});
+// Router to GET specific  detail from the MySQL database
+app.get('/api/:id', checkLogin, (req, res) => {
+    mysqlConnection.query(
+        'SELECT * FROM blogs WHERE blog_id = ?',
         [req.params.id],
         (err, rows, fields) => {
             if (!err) {
@@ -138,6 +133,25 @@ app.delete('/students', checkLogin, (req, res) => {
         },
     );
 });
+//// Router to DELETE a  detail
+app.delete('/api', checkLogin, (req, res) => {
+    const blog_id = req.body.blog_id;
+    if (!blog_id) {
+        return res.status(400).send({ error: true, message: 'Please provide blog_id' });
+    }
+    mysqlConnection.query(
+        'DELETE FROM blogs WHERE blog_id = ?',
+        [blog_id],
+        (error, results, fields) => {
+            if (error) throw error;
+            return res.send({
+                error: false,
+                data: results,
+                message: 'blog record has been deleted successfully.',
+            });
+        },
+    );
+});
 // insert a new student
 app.post('/students', checkLogin, (req, res) => {
     const student = req.body.students;
@@ -160,6 +174,33 @@ app.post('/students', checkLogin, (req, res) => {
                 error: false,
                 data: results,
                 message: 'New user has been created successfully.',
+            });
+        },
+    );
+});
+
+// insert a new blog
+app.post('/api', checkLogin, (req, res) => {
+    const blog = req.body.blogs;
+    // const { id } = req.body;
+    // const email = req.body.gmail;
+    // const courseid = req.body.courseID;
+    if (!blog) {
+        return res.status(400).send({ error: true, message: 'Please provide blog' });
+    }
+    mysqlConnection.query(
+        'INSERT INTO blogs SET ? ',
+        { title: title },
+        // { student_id: id },
+        // { student_email: email },
+        // { course_id: courseid },
+
+        (error, results, fields) => {
+            if (error) throw error;
+            return res.send({
+                error: false,
+                data: results,
+                message: 'New blog  has been created successfully.',
             });
         },
     );
@@ -227,16 +268,3 @@ app.post('/students/login', (req, res) => {
         });
     }
 });
-© 2022 GitHub, Inc.
-Terms
-Privacy
-Security
-Status
-Docs
-Contact GitHub
-Pricing
-API
-Training
-Blog
-About
-Loading complete
